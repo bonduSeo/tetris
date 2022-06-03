@@ -7,8 +7,12 @@ class App {
 
     const blockSize = 30;
 
-    this.blocks = [];
-    this.block = new Block(blockSize, this.canvas.Width, this.canvas.Height, 1);
+    this.blocksL = [
+      new Block(blockSize, this.canvas.Width, this.canvas.Height, 0, 0),
+      new Block(blockSize, this.canvas.Width, this.canvas.Height, 0, 1),
+      new Block(blockSize, this.canvas.Width, this.canvas.Height, 0, 2),
+      new Block(blockSize, this.canvas.Width, this.canvas.Height, 1, 2),
+    ];
 
     window.requestAnimationFrame(this.animate.bind(this));
   }
@@ -17,7 +21,9 @@ class App {
     this.ctx.fillStyle = "#102330";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.block.draw(this.ctx);
+    this.blocksL.forEach((block) => {
+      block.draw(this.ctx);
+    });
   }
 
   animate() {

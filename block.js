@@ -1,7 +1,7 @@
 export class Block {
-  constructor(blockSize, canvasWidth, canvasHeight, speed) {
-    this.x = 0;
-    this.y = 0;
+  constructor(blockSize, canvasWidth, canvasHeight, speed, x, y) {
+    this.x = x * blockSize;
+    this.y = y * blockSize;
 
     this.blockSize = blockSize;
     this.canvasWidth = canvasWidth;
