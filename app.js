@@ -28,8 +28,14 @@ class App {
         [0, 1],
         [1, 1],
       ],
+      [
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [1, 2],
+      ],
     ];
-    this.colorList = ["green", "red", "orange"];
+    this.colorList = ["green", "red", "orange", "blue"];
 
     this.dropBlocks = this.makeRandomBlocks();
     // console.log(this.dropBlocks);
@@ -50,8 +56,12 @@ class App {
         let zeroX = this.dropBlocks[0].x;
         let zeroY = this.dropBlocks[0].y;
         this.dropBlocks.forEach((block) => {
-          block.x = block.y - zeroY;
-          block.y = -(block.x - zeroX);
+          console.log("before :" + (block.x - zeroX) + "," + (block.y - zeroY));
+          let blockZeroX = block.x - zeroX;
+          let blockZeroY = block.y - zeroY;
+          block.x = blockZeroY + zeroX;
+          block.y = -blockZeroX + zeroY;
+          console.warn("after :" + block.x + "," + block.y);
         });
       }
     });
