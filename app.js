@@ -6,45 +6,77 @@ class App {
     this.ctx = this.canvas.getContext("2d");
 
     const blockSize = 20;
+    this.blockSize = blockSize;
     const blockSpeed = 5;
-
-    // console.log(this.canvas.width);
-    this.blocksL = [
-      new Block(
-        blockSize,
-        this.canvas.width,
-        this.canvas.height,
-        blockSpeed,
-        0,
-        0
-      ),
-      new Block(
-        blockSize,
-        this.canvas.width,
-        this.canvas.height,
-        blockSpeed,
-        0,
-        1
-      ),
-      new Block(
-        blockSize,
-        this.canvas.width,
-        this.canvas.height,
-        blockSpeed,
-        0,
-        2
-      ),
-      new Block(
-        blockSize,
-        this.canvas.width,
-        this.canvas.height,
-        blockSpeed,
-        1,
-        2
-      ),
+    this.blockSpeed = blockSpeed;
+    this.blockList = [
+      [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [1, 2],
+      ],
+      [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+      ],
+      [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ],
     ];
+    this.colorList = ["green", "red", "orange"];
+
+    this.dropBlocks = this.makeRandomBlocks();
+    // console.log(this.dropBlocks);
+
+    window.addEventListener("keydown", (e) => {
+      console.log(e.key);
+      if (e.key === "ArrowRight") {
+        this.dropBlocks.forEach((block) => {
+          block.x += this.blockSize;
+        });
+      }
+      if (e.key === "ArrowLeft") {
+        this.dropBlocks.forEach((block) => {
+          block.x -= this.blockSize;
+        });
+      }
+      if (e.key === " ") {
+        let zeroX = this.dropBlocks[0].x;
+        let zeroY = this.dropBlocks[0].y;
+        this.dropBlocks.forEach((block) => {
+          block.x = block.y - zeroY;
+          block.y = -(block.x - zeroX);
+        });
+      }
+    });
 
     window.requestAnimationFrame(this.animate.bind(this));
+  }
+
+  makeRandomBlocks() {
+    const ranNum = Math.floor(Math.random() * Number(this.blockList.length));
+    const ranBlocks = this.blockList[ranNum];
+    const blocks = [];
+    ranBlocks.forEach((item) => {
+      blocks.push(
+        new Block(
+          this.blockSize,
+          this.canvas.width,
+          this.canvas.height,
+          this.blockSpeed,
+          item[0],
+          item[1],
+          this.colorList[ranNum]
+        )
+      );
+    });
+    return blocks;
   }
 
   draw() {
@@ -52,7 +84,7 @@ class App {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     let checkStopPoint;
-    this.blocksL.forEach((block) => {
+    this.dropBlocks.forEach((block) => {
       block.draw(this.ctx);
       // console.log(block.blockSize);
       if (block.y > this.canvas.height - 2 * block.blockSize) {
@@ -65,7 +97,7 @@ class App {
   }
 
   stopBlocks() {
-    this.blocksL.forEach((block) => {
+    this.dropBlocks.forEach((block) => {
       block.stopStatus = true;
     });
   }
