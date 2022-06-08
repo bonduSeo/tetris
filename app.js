@@ -1,4 +1,5 @@
 import { Block } from "./block.js";
+import { DeadBlock } from "./deadblock.js";
 
 class App {
   constructor() {
@@ -11,16 +12,16 @@ class App {
     this.blockSpeed = blockSpeed;
     this.blockList = [
       [
+        [0, -1],
         [0, 0],
         [0, 1],
-        [0, 2],
-        [1, 2],
+        [1, 1],
       ],
       [
+        [0, -2],
+        [0, -1],
         [0, 0],
         [0, 1],
-        [0, 2],
-        [0, 3],
       ],
       [
         [0, 0],
@@ -38,23 +39,28 @@ class App {
     this.colorList = ["green", "red", "orange", "blue"];
 
     this.dropBlocks = this.makeRandomBlocks();
+    let spaceStatus = true;
     // console.log(this.dropBlocks);
 
     window.addEventListener("keydown", (e) => {
-      console.log(e.key);
       if (e.key === "ArrowRight") {
-        this.dropBlocks.forEach((block) => {
-          block.x += this.blockSize;
-        });
+        console.log(this.checkSideBlock("right"));
+        if (this.checkSideBlock("right")) {
+          this.dropBlocks.forEach((block) => {
+            block.x += this.blockSize;
+          });
+        }
       }
       if (e.key === "ArrowLeft") {
         this.dropBlocks.forEach((block) => {
-          block.x -= this.blockSize;
+          if (this.checkSideBlock("left")) {
+            block.x -= this.blockSize;
+          }
         });
       }
-      if (e.key === " ") {
-        let zeroX = this.dropBlocks[0].x;
-        let zeroY = this.dropBlocks[0].y;
+      if (e.key === "ArrowUp") {
+        let zeroX = this.dropBlocks[2].x;
+        let zeroY = this.dropBlocks[2].y;
         this.dropBlocks.forEach((block) => {
           console.log("before :" + (block.x - zeroX) + "," + (block.y - zeroY));
           let blockZeroX = block.x - zeroX;
@@ -64,7 +70,18 @@ class App {
           console.warn("after :" + block.x + "," + block.y);
         });
       }
+      if (e.key === " ") {
+        console.log("aa");
+        while (spaceStatus) {
+          this.dropBlocks.forEach((block) => {
+            block.y += this.blockSize;
+          });
+        }
+      }
     });
+
+    this.deadBlocks = this.makeGroundBlock();
+    console.log(this.deadBlocks);
 
     window.requestAnimationFrame(this.animate.bind(this));
   }
@@ -74,18 +91,9 @@ class App {
     const ranBlocks = this.blockList[ranNum];
     const blocks = [];
     ranBlocks.forEach((item) => {
-      blocks.push(
-        new Block(
-          this.blockSize,
-          this.canvas.width,
-          this.canvas.height,
-          this.blockSpeed,
-          item[0],
-          item[1],
-          this.colorList[ranNum]
-        )
-      );
+      blocks.push(new Block(this.blockSize, this.canvas.width, this.canvas.height, this.blockSpeed, item[0], item[1], this.colorList[ranNum]));
     });
+
     return blocks;
   }
 
@@ -97,24 +105,69 @@ class App {
     this.dropBlocks.forEach((block) => {
       block.draw(this.ctx);
       // console.log(block.blockSize);
-      if (block.y > this.canvas.height - 2 * block.blockSize) {
-        checkStopPoint = true;
-      }
+      this.deadBlocks.forEach((deadBlock) => {
+        if (block.x == deadBlock.x && block.y == deadBlock.y - this.blockSize) {
+          checkStopPoint = true;
+        }
+        if (deadBlock.y <= 0) {
+          this.deadBlocks = this.makeGroundBlock();
+        }
+      });
     });
     if (checkStopPoint) {
       this.stopBlocks();
     }
+
+    this.deadBlocks.forEach((deadBlock) => {
+      deadBlock.draw(this.ctx);
+    });
   }
 
   stopBlocks() {
-    this.dropBlocks.forEach((block) => {
-      block.stopStatus = true;
+    spaceStatus = false;
+    this.dropBlocks.forEach((dropBlock) => {
+      this.deadBlocks.push(new DeadBlock(dropBlock));
     });
+    this.dropBlocks = [];
+    this.dropBlocks = this.makeRandomBlocks();
   }
 
   animate() {
     this.draw();
     window.requestAnimationFrame(this.animate.bind(this));
+  }
+
+  checkSideBlock(direction) {
+    for (let i = 0; i < this.dropBlocks.length; i++) {
+      for (let j = 0; j < this.deadBlocks.length; j++) {
+        if (direction == "right") {
+          if (this.dropBlocks[i].y == this.deadBlocks[j].y && this.dropBlocks[i].x + this.blockSize == this.deadBlocks[j].x) {
+            return false;
+          }
+        }
+        if (direction == "left") {
+          if (this.dropBlocks[i].y == this.deadBlocks[j].y && this.dropBlocks[i].x - this.blockSize == this.deadBlocks[j].x) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  makeGroundBlock() {
+    const groundBlocks = [];
+    for (let i = 0; i < this.canvas.width; i += this.blockSize) {
+      const beforeGroundBlk = {
+        x: i,
+        y: this.canvas.height - this.blockSize,
+        blockSize: this.blockSize,
+        color: "gray",
+      };
+      const groundBlock = new DeadBlock(beforeGroundBlk);
+      groundBlocks.push(groundBlock);
+    }
+    return groundBlocks;
   }
 }
 

@@ -1,6 +1,6 @@
 export class Block {
   constructor(blockSize, canvasWidth, canvasHeight, speed, x, y, blockColor) {
-    this.x = canvasWidth / 2 + x * blockSize - blockSize;
+    this.x = x * blockSize + 6 * blockSize;
     this.y = y * blockSize;
 
     this.blockSize = blockSize;
@@ -12,8 +12,6 @@ export class Block {
     this.count = 0;
     this.stopStatus = false;
   }
-
-  moveBlocks(keys) {}
 
   draw(ctx) {
     // console.log(this.count++);
