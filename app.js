@@ -39,7 +39,7 @@ class App {
     this.colorList = ["green", "red", "orange", "blue"];
 
     this.dropBlocks = this.makeRandomBlocks();
-    let spaceStatus = true;
+
     // console.log(this.dropBlocks);
 
     window.addEventListener("keydown", (e) => {
@@ -52,11 +52,11 @@ class App {
         }
       }
       if (e.key === "ArrowLeft") {
-        this.dropBlocks.forEach((block) => {
-          if (this.checkSideBlock("left")) {
+        if (this.checkSideBlock("left")) {
+          this.dropBlocks.forEach((block) => {
             block.x -= this.blockSize;
-          }
-        });
+          });
+        }
       }
       if (e.key === "ArrowUp") {
         let zeroX = this.dropBlocks[2].x;
@@ -70,13 +70,52 @@ class App {
           console.warn("after :" + block.x + "," + block.y);
         });
       }
+      if (e.key === "ArrowDown") {
+        this.downBlocksOneStep();
+      }
       if (e.key === " ") {
-        console.log("aa");
-        while (spaceStatus) {
-          this.dropBlocks.forEach((block) => {
-            block.y += this.blockSize;
+        let dropBlockHeight = {};
+        this.dropBlocks.forEach((block) => {
+          if (typeof dropBlockHeight[block.x] == "undefined") {
+            dropBlockHeight[block.x] = block.y;
+          } else {
+            dropBlockHeight[block.x] =
+              dropBlockHeight[block.x] > block.y
+                ? dropBlockHeight[block.x]
+                : block.y;
+          }
+        });
+
+        let deadBlockHeight = {};
+        this.deadBlocks.forEach((deadBlock) => {
+          Object.keys(dropBlockHeight).forEach((keyX) => {
+            if (deadBlock.x == keyX) {
+              if (typeof deadBlockHeight[deadBlock.x] == "undefined") {
+                deadBlockHeight[deadBlock.x] = deadBlock.y;
+              } else {
+                deadBlockHeight[deadBlock.x] =
+                  deadBlockHeight[deadBlock.x] < deadBlock.y
+                    ? deadBlockHeight[deadBlock.x]
+                    : deadBlock.y;
+              }
+            }
           });
-        }
+        });
+
+        const heightDiff = [];
+        Object.keys(dropBlockHeight).forEach((key) => {
+          const diff = deadBlockHeight[key] - dropBlockHeight[key];
+          heightDiff.push(diff);
+        });
+        const minValue = Math.min(...heightDiff);
+
+        console.log(heightDiff);
+        console.log(minValue);
+
+        this.dropBlocks.forEach((block) => {
+          block.y += minValue - this.blockSize;
+        });
+        this.stopBlocks();
       }
     });
 
@@ -91,7 +130,17 @@ class App {
     const ranBlocks = this.blockList[ranNum];
     const blocks = [];
     ranBlocks.forEach((item) => {
-      blocks.push(new Block(this.blockSize, this.canvas.width, this.canvas.height, this.blockSpeed, item[0], item[1], this.colorList[ranNum]));
+      blocks.push(
+        new Block(
+          this.blockSize,
+          this.canvas.width,
+          this.canvas.height,
+          this.blockSpeed,
+          item[0],
+          item[1],
+          this.colorList[ranNum]
+        )
+      );
     });
 
     return blocks;
@@ -123,30 +172,44 @@ class App {
     });
   }
 
-  stopBlocks() {
-    spaceStatus = false;
-    this.dropBlocks.forEach((dropBlock) => {
-      this.deadBlocks.push(new DeadBlock(dropBlock));
-    });
-    this.dropBlocks = [];
-    this.dropBlocks = this.makeRandomBlocks();
-  }
-
   animate() {
     this.draw();
     window.requestAnimationFrame(this.animate.bind(this));
+  }
+
+  stopBlocks() {
+    this.dropBlocks.forEach((dropBlock) => {
+      this.deadBlocks.push(new DeadBlock(dropBlock));
+    });
+
+    this.checkStrike();
+    this.dropBlocks = this.makeRandomBlocks();
+  }
+
+  checkStrike() {
+    console.log("ck Strike");
+    console.log(this.deadBlocks);
+    //여기 해야함
   }
 
   checkSideBlock(direction) {
     for (let i = 0; i < this.dropBlocks.length; i++) {
       for (let j = 0; j < this.deadBlocks.length; j++) {
         if (direction == "right") {
-          if (this.dropBlocks[i].y == this.deadBlocks[j].y && this.dropBlocks[i].x + this.blockSize == this.deadBlocks[j].x) {
+          if (
+            this.dropBlocks[i].x >= this.canvas.width - this.blockSize ||
+            (this.dropBlocks[i].y == this.deadBlocks[j].y &&
+              this.dropBlocks[i].x + this.blockSize == this.deadBlocks[j].x)
+          ) {
             return false;
           }
         }
         if (direction == "left") {
-          if (this.dropBlocks[i].y == this.deadBlocks[j].y && this.dropBlocks[i].x - this.blockSize == this.deadBlocks[j].x) {
+          if (
+            this.dropBlocks[i].x <= 0 ||
+            (this.dropBlocks[i].y == this.deadBlocks[j].y &&
+              this.dropBlocks[i].x - this.blockSize == this.deadBlocks[j].x)
+          ) {
             return false;
           }
         }
@@ -168,6 +231,12 @@ class App {
       groundBlocks.push(groundBlock);
     }
     return groundBlocks;
+  }
+
+  downBlocksOneStep() {
+    this.dropBlocks.forEach((block) => {
+      block.y += this.blockSize;
+    });
   }
 }
 
