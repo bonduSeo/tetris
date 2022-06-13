@@ -40,11 +40,8 @@ class App {
 
     this.dropBlocks = this.makeRandomBlocks();
 
-    // console.log(this.dropBlocks);
-
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") {
-        console.log(this.checkSideBlock("right"));
         if (this.checkSideBlock("right")) {
           this.dropBlocks.forEach((block) => {
             block.x += this.blockSize;
@@ -61,13 +58,12 @@ class App {
       if (e.key === "ArrowUp") {
         let zeroX = this.dropBlocks[2].x;
         let zeroY = this.dropBlocks[2].y;
+
         this.dropBlocks.forEach((block) => {
-          console.log("before :" + (block.x - zeroX) + "," + (block.y - zeroY));
           let blockZeroX = block.x - zeroX;
           let blockZeroY = block.y - zeroY;
           block.x = blockZeroY + zeroX;
           block.y = -blockZeroX + zeroY;
-          console.warn("after :" + block.x + "," + block.y);
         });
       }
       if (e.key === "ArrowDown") {
@@ -109,9 +105,6 @@ class App {
         });
         const minValue = Math.min(...heightDiff);
 
-        console.log(heightDiff);
-        console.log(minValue);
-
         this.dropBlocks.forEach((block) => {
           block.y += minValue - this.blockSize;
         });
@@ -120,7 +113,6 @@ class App {
     });
 
     this.deadBlocks = this.makeGroundBlock();
-    console.log(this.deadBlocks);
 
     window.requestAnimationFrame(this.animate.bind(this));
   }
@@ -187,9 +179,29 @@ class App {
   }
 
   checkStrike() {
-    console.log("ck Strike");
-    console.log(this.deadBlocks);
     //여기 해야함
+    const lineCheck = [];
+    this.deadBlocks.forEach((block) => {
+      const key =
+        (this.canvas.height - this.blockSize - block.y) / this.blockSize;
+      if (typeof lineCheck[key] == "undefined") {
+        lineCheck[key] = [];
+      }
+      lineCheck[key].push(block);
+    });
+
+    for (let i = 0; i < lineCheck.length; i++) {
+      if (lineCheck[i].length >= this.canvas.width / this.blockSize) {
+        const delY = this.canvas.height - this.blockSize - i * this.blockSize;
+        this.deadBlocks.forEach((block, idx) => {
+          if (block.y == delY) {
+            this.deadBlocks.splice(idx, 1);
+          } else {
+            block.y += this.blockSize;
+          }
+        });
+      }
+    }
   }
 
   checkSideBlock(direction) {
@@ -223,7 +235,7 @@ class App {
     for (let i = 0; i < this.canvas.width; i += this.blockSize) {
       const beforeGroundBlk = {
         x: i,
-        y: this.canvas.height - this.blockSize,
+        y: this.canvas.height,
         blockSize: this.blockSize,
         color: "gray",
       };
