@@ -75,10 +75,7 @@ class App {
           if (typeof dropBlockHeight[block.x] == "undefined") {
             dropBlockHeight[block.x] = block.y;
           } else {
-            dropBlockHeight[block.x] =
-              dropBlockHeight[block.x] > block.y
-                ? dropBlockHeight[block.x]
-                : block.y;
+            dropBlockHeight[block.x] = dropBlockHeight[block.x] > block.y ? dropBlockHeight[block.x] : block.y;
           }
         });
 
@@ -89,10 +86,7 @@ class App {
               if (typeof deadBlockHeight[deadBlock.x] == "undefined") {
                 deadBlockHeight[deadBlock.x] = deadBlock.y;
               } else {
-                deadBlockHeight[deadBlock.x] =
-                  deadBlockHeight[deadBlock.x] < deadBlock.y
-                    ? deadBlockHeight[deadBlock.x]
-                    : deadBlock.y;
+                deadBlockHeight[deadBlock.x] = deadBlockHeight[deadBlock.x] < deadBlock.y ? deadBlockHeight[deadBlock.x] : deadBlock.y;
               }
             }
           });
@@ -122,17 +116,7 @@ class App {
     const ranBlocks = this.blockList[ranNum];
     const blocks = [];
     ranBlocks.forEach((item) => {
-      blocks.push(
-        new Block(
-          this.blockSize,
-          this.canvas.width,
-          this.canvas.height,
-          this.blockSpeed,
-          item[0],
-          item[1],
-          this.colorList[ranNum]
-        )
-      );
+      blocks.push(new Block(this.blockSize, this.canvas.width, this.canvas.height, this.blockSpeed, item[0], item[1], this.colorList[ranNum]));
     });
 
     return blocks;
@@ -182,13 +166,13 @@ class App {
     //여기 해야함
     const lineCheck = [];
     this.deadBlocks.forEach((block) => {
-      const key =
-        (this.canvas.height - this.blockSize - block.y) / this.blockSize;
+      const key = (this.canvas.height - this.blockSize - block.y) / this.blockSize;
       if (typeof lineCheck[key] == "undefined") {
         lineCheck[key] = [];
       }
       lineCheck[key].push(block);
     });
+    console.log(lineCheck);
 
     for (let i = 0; i < lineCheck.length; i++) {
       if (lineCheck[i].length >= this.canvas.width / this.blockSize) {
@@ -210,8 +194,7 @@ class App {
         if (direction == "right") {
           if (
             this.dropBlocks[i].x >= this.canvas.width - this.blockSize ||
-            (this.dropBlocks[i].y == this.deadBlocks[j].y &&
-              this.dropBlocks[i].x + this.blockSize == this.deadBlocks[j].x)
+            (this.dropBlocks[i].y == this.deadBlocks[j].y && this.dropBlocks[i].x + this.blockSize == this.deadBlocks[j].x)
           ) {
             return false;
           }
@@ -219,8 +202,7 @@ class App {
         if (direction == "left") {
           if (
             this.dropBlocks[i].x <= 0 ||
-            (this.dropBlocks[i].y == this.deadBlocks[j].y &&
-              this.dropBlocks[i].x - this.blockSize == this.deadBlocks[j].x)
+            (this.dropBlocks[i].y == this.deadBlocks[j].y && this.dropBlocks[i].x - this.blockSize == this.deadBlocks[j].x)
           ) {
             return false;
           }
