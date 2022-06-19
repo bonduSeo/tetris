@@ -136,6 +136,7 @@ class App {
         }
         if (deadBlock.y <= 0) {
           this.deadBlocks = this.makeGroundBlock();
+          //게임리셋
         }
       });
     });
@@ -172,20 +173,35 @@ class App {
       }
       lineCheck[key].push(block);
     });
-    console.log(lineCheck);
 
+    const delYArray = [];
     for (let i = 0; i < lineCheck.length; i++) {
       if (lineCheck[i].length >= this.canvas.width / this.blockSize) {
         const delY = this.canvas.height - this.blockSize - i * this.blockSize;
-        this.deadBlocks.forEach((block, idx) => {
-          if (block.y == delY) {
-            this.deadBlocks.splice(idx, 1);
-          } else {
-            block.y += this.blockSize;
-          }
-        });
+        delYArray.push(delY);
       }
     }
+    const newDeadBlocks = this.makeGroundBlock();
+
+    this.deadBlocks.forEach((block) => {
+      let checkDelBlock = true;
+      let checkBlockDown = 0;
+      //false면 블럭삭제
+      delYArray.forEach((delY) => {
+        if (block.y == delY) {
+          checkDelBlock = false;
+        } else if (block.y < delY) {
+          checkBlockDown += this.blockSize;
+        }
+      });
+
+      if (checkDelBlock) {
+        block.y += checkBlockDown;
+        newDeadBlocks.push(block);
+      }
+    });
+
+    this.deadBlocks = newDeadBlocks;
   }
 
   checkSideBlock(direction) {
