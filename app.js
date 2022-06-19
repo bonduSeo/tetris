@@ -1,5 +1,7 @@
 import { Block } from "./block.js";
-import { DeadBlock } from "./deadblock.js";
+import { DeadBlock } from "./deadBlock.js";
+import { blockList } from "./blockList.js";
+import { sendInfo } from "./sendInfo.js";
 
 class App {
   constructor() {
@@ -10,32 +12,7 @@ class App {
     this.blockSize = blockSize;
     const blockSpeed = 5;
     this.blockSpeed = blockSpeed;
-    this.blockList = [
-      [
-        [0, -1],
-        [0, 0],
-        [0, 1],
-        [1, 1],
-      ],
-      [
-        [0, -2],
-        [0, -1],
-        [0, 0],
-        [0, 1],
-      ],
-      [
-        [0, 0],
-        [1, 0],
-        [0, 1],
-        [1, 1],
-      ],
-      [
-        [1, 0],
-        [0, 1],
-        [1, 1],
-        [1, 2],
-      ],
-    ];
+
     this.colorList = ["green", "red", "orange", "blue"];
 
     this.dropBlocks = this.makeRandomBlocks();
@@ -112,8 +89,8 @@ class App {
   }
 
   makeRandomBlocks() {
-    const ranNum = Math.floor(Math.random() * Number(this.blockList.length));
-    const ranBlocks = this.blockList[ranNum];
+    const ranNum = Math.floor(Math.random() * Number(blockList.length));
+    const ranBlocks = blockList[ranNum];
     const blocks = [];
     ranBlocks.forEach((item) => {
       blocks.push(new Block(this.blockSize, this.canvas.width, this.canvas.height, this.blockSpeed, item[0], item[1], this.colorList[ranNum]));
@@ -151,7 +128,12 @@ class App {
 
   animate() {
     this.draw();
+    this.sendStatus();
     window.requestAnimationFrame(this.animate.bind(this));
+  }
+
+  sendStatus() {
+    sendInfo(1, this.dropBlocks, this.deadBlocks);
   }
 
   stopBlocks() {
