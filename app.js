@@ -128,7 +128,8 @@ class App {
 
   animate() {
     this.draw();
-    this.sendStatus();
+    // this.sendStatus();
+    // 서버 txt 문서를 이용한 통신은 ajax 통신이 느려서 실패
     window.requestAnimationFrame(this.animate.bind(this));
   }
 
